@@ -5,6 +5,14 @@ import backend.*;
 }
 
 @members {
+    void isAssignable(String text, Expr expr) throws Exception {
+        if (text.equals("int") && !(expr instanceof IntLiteral)) {
+            throw new Exception("Type mismatch");
+        }
+        else {
+            System.out.println("No type conflict");
+        }
+    }
 }
 
 program returns [Expr expr]:
@@ -84,18 +92,22 @@ statement returns [Expr expr]:
  
 assignment returns [Expr expr]
     : ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
-    | ID ':' TYPE '=' expression {
-                                        new isAssignable($TYPE.text, $expression.expr);
-                                        
-                                        $expr = new Assign($ID.text, $expression.expr);
-                                        
-                                    }
+    | ID ':' TYPE '=' expression 
+        {
+            try {
+                isAssignable($TYPE.text, $expression.expr);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                $expr = new NoneExpr();
+            }
+            
+            $expr = new Assign($ID.text, $expression.expr);                      
+        }
     ;
     
-//ID_COLON_TYPE returns [Expr expr]
-//    : ID ':' TYPE;
-    
 // Lexer here
+TYPE: 'int' | 'bool' | 'string';
 STRING : '"' (ESC | ~["\\])* '"' ;
 BOOL : TRUE | FALSE;
 
@@ -112,8 +124,6 @@ fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 fragment EXP : [Ee] [+\-]? INT ; // \- since - means "range" inside [...]
 
 ID: [a-zA-Z] [a-zA-Z0-9_]*;
-
-TYPE: 'int' | 'bool' | 'string' | 'float';
 
 TRUE: 'true';
 FALSE: 'false';

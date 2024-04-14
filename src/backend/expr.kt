@@ -238,43 +238,43 @@ class Print(
     } 
 }
 
-class isAssignable(
-   val type: String, val expr: Expr
-): Expr() {
-    override fun eval(runtime:Runtime): None {
-        val result = expr.eval(runtime)
-        val x = stringify(result)
+// class isAssignable(
+//    val type: String, val expr: Expr
+// ): Expr() {
+//     override fun eval(runtime:Runtime): None {
+//         val result = expr.eval(runtime)
+//         val x = stringify(result)
         
-        when(type) {
-            "int" -> {
-                if(!isInt(x)){
-                    println("Type mismatch")
-                }
-                return None
-            }
-            "float" -> {
-                if(!isFloat(x)){
-                    println("Type mismatch")
-                }
-                return None
-            }
-            "bool" -> {
-                if(!isBoolean(x)){
-                    println("Type mismatch")
-                }
-                return None
-            }
-            "string" -> {
-                if(!isString(x)){
-                    println("Type mismatch")
-                }
-                return None
-            }
-            else -> throw Exception("No operator found in when case")
-        }
+//         when(type) {
+//             "int" -> {
+//                 if(!isInt(x)){
+//                     println("Type mismatch")
+//                 }
+//                 return None
+//             }
+//             "float" -> {
+//                 if(!isFloat(x)){
+//                     println("Type mismatch")
+//                 }
+//                 return None
+//             }
+//             "bool" -> {
+//                 if(!isBoolean(x)){
+//                     println("Type mismatch")
+//                 }
+//                 return None
+//             }
+//             "string" -> {
+//                 if(!isString(x)){
+//                     println("Type mismatch")
+//                 }
+//                 return None
+//             }
+//             else -> throw Exception("No operator found in when case")
+//         }
         
-   }
-}
+//    }
+// }
 
 /*fun isAssignable(type: String, x: String): Boolean {
             when(type) {

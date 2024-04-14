@@ -5,6 +5,14 @@ import backend.*;
 }
 
 @members {
+    void isAssignable(String text, Expr expr) throws Exception {
+        if (text.equals("int") && !(expr instanceof IntLiteral)) {
+            throw new Exception("Type mismatch");
+        }
+        else {
+            System.out.println("No type conflict");
+        }
+    }
 }
 
 program returns [Expr expr]:
@@ -56,7 +64,7 @@ argumentList returns [List<Expr> calls]: e1=expression {$calls = new ArrayList<E
 statement returns [Expr expr]:
     expression {$expr = $expression.expr;}
     
-    | ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
+    | assignment {$expr = $assignment.expr;}
     
     | 'print(' statement ')' {$expr = new Print($statement.expr);}
     
@@ -81,9 +89,25 @@ statement returns [Expr expr]:
         'function' name=ID '(' (arg=ID ','? {alist.add($arg.text);})* ')' '{' (body=statement {statements.add($body.expr);})+ '}'
         {$expr = new Declare($name.text, alist, new Block(statements));}
 ;
-    
+ 
+assignment returns [Expr expr]
+    : ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
+    | ID ':' TYPE '=' expression 
+        {
+            try {
+                isAssignable($TYPE.text, $expression.expr);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                $expr = new NoneExpr();
+            }
+            
+            $expr = new Assign($ID.text, $expression.expr);                      
+        }
+    ;
     
 // Lexer here
+TYPE: 'int' | 'bool' | 'string';
 STRING : '"' (ESC | ~["\\])* '"' ;
 BOOL : TRUE | FALSE;
 
