@@ -237,3 +237,88 @@ class Print(
         return None
     } 
 }
+
+class isAssignable(
+   val type: String, val expr: Expr
+): Expr() {
+    override fun eval(runtime:Runtime): None {
+        val result = expr.eval(runtime)
+        val x = stringify(result)
+        
+        when(type) {
+            "int" -> {
+                if(!isInt(x)){
+                    println("Type mismatch")
+                }
+                return None
+            }
+            "float" -> {
+                if(!isFloat(x)){
+                    println("Type mismatch")
+                }
+                return None
+            }
+            "bool" -> {
+                if(!isBoolean(x)){
+                    println("Type mismatch")
+                }
+                return None
+            }
+            "string" -> {
+                if(!isString(x)){
+                    println("Type mismatch")
+                }
+                return None
+            }
+            else -> throw Exception("No operator found in when case")
+        }
+        
+   }
+}
+
+/*fun isAssignable(type: String, x: String): Boolean {
+            when(type) {
+            "int" -> {
+                if(!isInt(x)){
+                    println("Type mismatch")
+                }
+                return isInt(x)
+            }
+            "float" -> {
+                if(!isFloat(x)){
+                    println("Type mismatch")
+                }
+                return isFloat(x)
+            }
+            "Boolean" -> {
+                if(!isBoolean(x)){
+                    println("Type mismatch")
+                }
+                return isBoolean(x)
+            }
+            "string" -> {
+                if(!isString(x)){
+                    println("Type mismatch")
+               }
+                return isString(x)
+            }
+            else -> throw Exception("No operator found in when case")
+        }
+}*/
+
+fun isInt(value: String): Boolean {
+    return value.toIntOrNull() != null
+}
+
+fun isFloat(value: String): Boolean {
+    return value.toFloatOrNull() != null
+}
+
+fun isBoolean(value: String): Boolean {
+    return value.equals("true", ignoreCase = true) || value.equals("false", ignoreCase = true)
+}
+
+fun isString(value: String): Boolean {
+    // A string is anything that is not a valid integer, float, or boolean
+    return !isInt(value) && !isFloat(value) && !isBoolean(value)
+}

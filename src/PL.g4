@@ -56,7 +56,7 @@ argumentList returns [List<Expr> calls]: e1=expression {$calls = new ArrayList<E
 statement returns [Expr expr]:
     expression {$expr = $expression.expr;}
     
-    | ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
+    | assignment {$expr = $assignment.expr;}
     
     | 'print(' statement ')' {$expr = new Print($statement.expr);}
     
@@ -81,7 +81,19 @@ statement returns [Expr expr]:
         'function' name=ID '(' (arg=ID ','? {alist.add($arg.text);})* ')' '{' (body=statement {statements.add($body.expr);})+ '}'
         {$expr = new Declare($name.text, alist, new Block(statements));}
 ;
+ 
+assignment returns [Expr expr]
+    : ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
+    | ID ':' TYPE '=' expression {
+                                        new isAssignable($TYPE.text, $expression.expr);
+                                        
+                                        $expr = new Assign($ID.text, $expression.expr);
+                                        
+                                    }
+    ;
     
+//ID_COLON_TYPE returns [Expr expr]
+//    : ID ':' TYPE;
     
 // Lexer here
 STRING : '"' (ESC | ~["\\])* '"' ;
@@ -100,6 +112,8 @@ fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 fragment EXP : [Ee] [+\-]? INT ; // \- since - means "range" inside [...]
 
 ID: [a-zA-Z] [a-zA-Z0-9_]*;
+
+TYPE: 'int' | 'bool' | 'string' | 'float';
 
 TRUE: 'true';
 FALSE: 'false';
