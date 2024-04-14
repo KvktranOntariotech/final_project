@@ -239,7 +239,7 @@ class Print(
 }
 
 class isAssignable(
-   val type: String, val expr: Expr
+   val type: String, val expr: Expr, val symbol: String
 ): Expr() {
     override fun eval(runtime:Runtime): None {
         val result = expr.eval(runtime)
@@ -251,30 +251,42 @@ class isAssignable(
                     throw Exception("Type mismatch, assigned value is not of int type")
                 }else{
                     println("Type matches")
+                    expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
                 }
                 return None
             }
             "float" -> {
                 if(!isFloat(x)){
-                    println("Type mismatch")
+                    throw Exception("Type mismatch, assigned value is not of float type")
                 }else{
                     println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
                 }
                 return None
             }
             "bool" -> {
                 if(!isBoolean(x)){
-                    println("Type mismatch")
+                    throw Exception("Type mismatch, assigned value is not of bool type")
                 }else{
                     println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
                 }
                 return None
             }
             "string" -> {
                 if(!isString(x)){
-                    println("Type mismatch")
+                    throw Exception("Type mismatch, assigned value is not of string type")
                 }else{
                     println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
                 }
                 return None
             }

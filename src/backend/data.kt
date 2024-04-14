@@ -36,7 +36,3 @@ class FuncData(
 fun <T> stringify(input: T): String {
     return input.toString()
 }
-
-//fun BecomeString(var value:Data): Data {
-//   return "" + value
-//}
