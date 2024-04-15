@@ -40,6 +40,12 @@ class BooleanLiteral(val lexeme:String): Expr() {
     = BooleanData(lexeme.equals("true"))
 }
 
+class ListExpr(val elements: List<Expr>, val e_type: String): Expr() {
+    override fun eval(runtime:Runtime): Data {
+        return ArrayData(elements)
+    }
+}
+
 class Arithmetics(
     val op:Operator,
     val left:Expr,
@@ -91,6 +97,18 @@ class Arithmetics(
         else {
             throw Exception("Invalid Type")
         } 
+    }
+    
+    fun evaluate(): String {
+        if (left is IntLiteral && right is IntLiteral) {
+            if (op == Operator.Add || op == Operator.Sub || op == Operator.Mul || op == Operator.Div) {
+                return "int"
+            }
+        }
+        if (left is StringLiteral && right is StringLiteral && op == Operator.Pplus) {
+            return "string"
+        }
+        return "unknown"
     }
 }
 
@@ -238,44 +256,63 @@ class Print(
     } 
 }
 
-// class isAssignable(
-//    val type: String, val expr: Expr
-// ): Expr() {
-//     override fun eval(runtime:Runtime): None {
-//         val result = expr.eval(runtime)
-//         val x = stringify(result)
+class isAssignable(
+   val type: String, val expr: Expr, val symbol: String
+): Expr() {
+    override fun eval(runtime:Runtime): None {
+        val result = expr.eval(runtime)
+        val x = stringify(result)
         
-//         when(type) {
-//             "int" -> {
-//                 if(!isInt(x)){
-//                     println("Type mismatch")
-//                 }
-//                 return None
-//             }
-//             "float" -> {
-//                 if(!isFloat(x)){
-//                     println("Type mismatch")
-//                 }
-//                 return None
-//             }
-//             "bool" -> {
-//                 if(!isBoolean(x)){
-//                     println("Type mismatch")
-//                 }
-//                 return None
-//             }
-//             "string" -> {
-//                 if(!isString(x)){
-//                     println("Type mismatch")
-//                 }
-//                 return None
-//             }
-//             else -> throw Exception("No operator found in when case")
-//         }
+        when(type) {
+            "int" -> {
+                if(!isInt(x)){
+                    throw Exception("Type mismatch, assigned value is not of int type")
+                }else{
+                    println("Type matches")
+                    expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
+                }
+                return None
+            }
+            "float" -> {
+                if(!isFloat(x)){
+                    throw Exception("Type mismatch, assigned value is not of float type")
+                }else{
+                    println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
+                }
+                return None
+            }
+            "bool" -> {
+                if(!isBoolean(x)){
+                    throw Exception("Type mismatch, assigned value is not of bool type")
+                }else{
+                    println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
+                }
+                return None
+            }
+            "string" -> {
+                if(!isString(x)){
+                    throw Exception("Type mismatch, assigned value is not of string type")
+                }else{
+                    println("Type matches")
+                     expr.eval(runtime).apply {
+                        runtime.symbolTable.put(symbol, this)
+                    }
+                }
+                return None
+            }
+            else -> throw Exception("No operator found in when case")
+        }
         
-//    }
-// }
-
+   }
+}
 /*fun isAssignable(type: String, x: String): Boolean {
             when(type) {
             "int" -> {
@@ -321,4 +358,10 @@ fun isBoolean(value: String): Boolean {
 fun isString(value: String): Boolean {
     // A string is anything that is not a valid integer, float, or boolean
     return !isInt(value) && !isFloat(value) && !isBoolean(value)
+}
+
+class MyError {
+    fun printError(message: String) {
+        throw Exception(message)
+    }
 }

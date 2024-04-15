@@ -22,6 +22,16 @@ class StringData(var value:String): Data() {
     }
 }
 
+class ListData(val value:List<Data>): Data() {
+    override fun toString(): String {
+        return "Array"
+    }
+    
+    fun getElement(index:Int): Data {
+        return value[index]
+    }
+}
+
 class FuncData(
     val name: String,
     val params: List<String>,

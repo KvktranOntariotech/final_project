@@ -2,16 +2,44 @@ grammar PL;
 
 @header {
 import backend.*;
+import java.util.HashMap;
+import java.util.Vector;
 }
 
 @members {
-    void isAssignable(String text, Expr expr) throws Exception {
-        if (text.equals("int") && !(expr instanceof IntLiteral)) {
-            throw new Exception("Type mismatch");
+    HashMap<String, String> typeTable = new HashMap<String, String>();
+    MyError error = new MyError();
+    
+    void p_typeTable() {
+        for (String key : this.typeTable.keySet()) {
+            System.out.println(key + " : " + this.typeTable.get(key));
         }
-        else {
-            System.out.println("No type conflict");
+    }
+    
+    void checkArithmetic(String value, Arithmetics expr) {
+        String ev = expr.evaluate();
+        System.out.println(ev);
+        
+        if (!value.equals(ev)) {
+            this.error.printError("Type mismatch, assigned value " + value + " is not of " + value + " type");
         }
+    }
+    
+    void isValidType(String value, Expr expr) {
+        String t_type = this.typeTable.get(value);
+        if (expr instanceof Arithmetics) {
+            checkArithmetic(t_type, (Arithmetics)expr);
+        } else {
+            if (t_type.equals("int") && !(expr instanceof IntLiteral)) {
+                this.error.printError("Type mismatch, assigned value " + value + " is not of int type");
+            }
+            if (t_type.equals("string") && !(expr instanceof StringLiteral)) {
+                this.error.printError("Type mismatch, assigned value " + value + " is not of string type");
+            }
+            if (t_type.equals("bool") && !(expr instanceof BooleanLiteral)) {
+                this.error.printError("Type mismatch, assigned value " + value + " is not of boolean type");
+            }
+        } 
     }
 }
 
@@ -51,12 +79,24 @@ expression returns [Expr expr]:
     | value operator v2=expression {$expr = new Arithmetics($operator.op, $value.expr, $v2.expr);}
     | v1=expression comparator v2=expression {$expr = new Compare($comparator.com, $v1.expr, $v2.expr);}
     | value {$expr = $value.expr;}
+    | array {$expr = $array.expr;} 
+;
+
+array returns [Expr expr]:
+    {List<Expr> listData = new ArrayList<Expr>();}
+    '[' value* {listData.add($value.expr);} ']'
+    {$expr = new ArrayExpr(listData, "test");}
 ;
 
 invoke returns [Expr expr]:
     {List<Expr> elist = new ArrayList<Expr>();}
     name=ID '(' argumentList? ')'
-    {$expr = new Invoke($name.text, $argumentList.calls);}
+    {
+        for (int i = 0; i < $argumentList.calls.size(); i++) {
+            isValidType($name.text + "_" + i, $argumentList.calls.get(i));
+        }
+        $expr = new Invoke($name.text, $argumentList.calls);
+    }
 ;
 
 argumentList returns [List<Expr> calls]: e1=expression {$calls = new ArrayList<Expr>(); $calls.add($e1.expr);} (',' e2=expression {$calls.add($e2.expr);})*;
@@ -85,29 +125,33 @@ statement returns [Expr expr]:
         {
             List<String> alist = new ArrayList<String>();
             List<Expr> statements = new ArrayList<Expr>();
+            int count = 0;
         }
-        'function' name=ID '(' (arg=ID ','? {alist.add($arg.text);})* ')' '{' (body=statement {statements.add($body.expr);})+ '}'
+        'function' name=ID '(' (arg=ID ':' TYPE ','? {typeTable.put($name.text + "_" + count, $TYPE.text); alist.add($arg.text); count++;})* ')' 
+            '{' (body=statement {statements.add($body.expr);})+ '}'
         {$expr = new Declare($name.text, alist, new Block(statements));}
 ;
  
 assignment returns [Expr expr]
-    : ID '=' expression {$expr = new Assign($ID.text, $expression.expr);}
+    : ID '=' expression 
+        {
+            isValidType($ID.text, $expression.expr);
+            $expr = new Assign($ID.text, $expression.expr);
+        }
     | ID ':' TYPE '=' expression 
         {
-            try {
-                isAssignable($TYPE.text, $expression.expr);
-            }
-            catch (Exception e) {
-                System.out.println(e);
-                $expr = new NoneExpr();
-            }
-            
-            $expr = new Assign($ID.text, $expression.expr);                      
+            this.typeTable.put($ID.text, $TYPE.text);
+            isValidType($ID.text, $expression.expr);
+            $expr = new Assign($ID.text, $expression.expr);
         }
     ;
-    
+
+
+
 // Lexer here
-TYPE: 'int' | 'bool' | 'string';
+TYPE: 'int' | 'bool' | 'string' | 'float'
+    | 'Array<' TYPE '>'
+;
 STRING : '"' (ESC | ~["\\])* '"' ;
 BOOL : TRUE | FALSE;
 
@@ -124,6 +168,8 @@ fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 fragment EXP : [Ee] [+\-]? INT ; // \- since - means "range" inside [...]
 
 ID: [a-zA-Z] [a-zA-Z0-9_]*;
+
+
 
 TRUE: 'true';
 FALSE: 'false';

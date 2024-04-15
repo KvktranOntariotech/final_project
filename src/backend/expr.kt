@@ -40,6 +40,12 @@ class BooleanLiteral(val lexeme:String): Expr() {
     = BooleanData(lexeme.equals("true"))
 }
 
+class ListExpr(val elements: List<Expr>, val e_type: String): Expr() {
+    override fun eval(runtime:Runtime): Data {
+        return ArrayData(elements)
+    }
+}
+
 class Arithmetics(
     val op:Operator,
     val left:Expr,
@@ -91,6 +97,19 @@ class Arithmetics(
         else {
             throw Exception("Invalid Type")
         } 
+    }
+    
+    fun evaluate(): String {
+        if (left is Arithmetics && right is Arithmetics)
+        if (left is IntLiteral && right is IntLiteral) {
+            if (op == Operator.Add || op == Operator.Sub || op == Operator.Mul || op == Operator.Div) {
+                return "int"
+            }
+        }
+        if (left is StringLiteral && right is StringLiteral && op == Operator.Pplus) {
+            return "string"
+        }
+        return "unknown"
     }
 }
 
@@ -340,4 +359,10 @@ fun isBoolean(value: String): Boolean {
 fun isString(value: String): Boolean {
     // A string is anything that is not a valid integer, float, or boolean
     return !isInt(value) && !isFloat(value) && !isBoolean(value)
+}
+
+class MyError {
+    fun printError(message: String) {
+        throw Exception(message)
+    }
 }
