@@ -89,7 +89,6 @@ expression returns [Expr expr]:
 array returns [Expr expr]:
     {List<Expr> listData = new ArrayList<Expr>();}
     '[' value* {listData.add($value.expr);} ']'
-    {$expr = new ArrayExpr(listData, "test");}
 ;
 
 invoke returns [Expr expr]:
