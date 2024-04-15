@@ -99,15 +99,16 @@ class Arithmetics(
         } 
     }
     
-    fun evaluate(): String {
-        if (left is Arithmetics && right is Arithmetics)
+    fun typeStr(): String {
         if (left is IntLiteral && right is IntLiteral) {
             if (op == Operator.Add || op == Operator.Sub || op == Operator.Mul || op == Operator.Div) {
                 return "int"
             }
         }
-        if (left is StringLiteral && right is StringLiteral && op == Operator.Pplus) {
-            return "string"
+        if (left is StringLiteral && right is StringLiteral) {
+            if (op == Operator.Pplus) {
+                return "string"
+            }
         }
         return "unknown"
     }
@@ -314,35 +315,6 @@ class isAssignable(
         
    }
 }
-/*fun isAssignable(type: String, x: String): Boolean {
-            when(type) {
-            "int" -> {
-                if(!isInt(x)){
-                    println("Type mismatch")
-                }
-                return isInt(x)
-            }
-            "float" -> {
-                if(!isFloat(x)){
-                    println("Type mismatch")
-                }
-                return isFloat(x)
-            }
-            "Boolean" -> {
-                if(!isBoolean(x)){
-                    println("Type mismatch")
-                }
-                return isBoolean(x)
-            }
-            "string" -> {
-                if(!isString(x)){
-                    println("Type mismatch")
-               }
-                return isString(x)
-            }
-            else -> throw Exception("No operator found in when case")
-        }
-}*/
 
 fun isInt(value: String): Boolean {
     return value.toIntOrNull() != null

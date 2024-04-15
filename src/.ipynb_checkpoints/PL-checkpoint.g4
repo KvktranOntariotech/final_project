@@ -17,9 +17,11 @@ import java.util.Vector;
     }
     
     void checkArithmetic(String value, Arithmetics expr) {
-        String ev = expr.evaluate();
-        System.out.println(ev);
+        String ev = expr.typeStr();
         
+        if (ev.equals("unknown")) {
+            return;
+        }
         if (!value.equals(ev)) {
             this.error.printError("Type mismatch, assigned value " + value + " is not of " + value + " type");
         }
@@ -27,9 +29,7 @@ import java.util.Vector;
     
     void isValidType(String value, Expr expr) {
         String t_type = this.typeTable.get(value);
-        if (expr instanceof Arithmetics) {
-            checkArithmetic(t_type, (Arithmetics)expr);
-        } else {
+        if (expr instanceof IntLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral) {
             if (t_type.equals("int") && !(expr instanceof IntLiteral)) {
                 this.error.printError("Type mismatch, assigned value " + value + " is not of int type");
             }
@@ -38,6 +38,10 @@ import java.util.Vector;
             }
             if (t_type.equals("bool") && !(expr instanceof BooleanLiteral)) {
                 this.error.printError("Type mismatch, assigned value " + value + " is not of boolean type");
+            }
+        } else {
+            if (expr instanceof Arithmetics) {
+                checkArithmetic(t_type, (Arithmetics)expr);
             }
         } 
     }
